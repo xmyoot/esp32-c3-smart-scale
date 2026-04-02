@@ -1,0 +1,374 @@
+Detected entrypoint: 'index.circuit.tsx'
+Errors: 0
+Warnings: 0
+
+Readable Netlist:
+COMPONENTS:
+ - J1: TYPE_C_31_M_12
+ - U3: MCP73831T_2ACI_OT
+ - U4: TLV75530PDBVR
+ - J2: S2B-PH-SM4-TB_LF__SN_
+ - R1: 5.1kΩ resistor
+ - R2: 5.1kΩ resistor
+ - R3: 2kΩ resistor
+ - C1: 10uF capacitor
+ - C2: 4.7uF capacitor
+ - C3: 4.7uF capacitor
+ - C4: 10uF capacitor
+ - U1: ESP32_C3_MINI_1U_H4
+ - R4: 10kΩ resistor
+ - C5: 1uF capacitor
+ - R5: 10kΩ resistor
+ - C6: 10uF capacitor
+ - C7: 100nF capacitor
+ - R6: 1.5MΩ resistor
+ - R7: 499kΩ resistor
+ - U2: HX711
+ - J3: LOAD_CELL_4P_GENERIC
+ - C8: 100nF capacitor
+ - C9: 10uF capacitor
+ - TP1: FACTORY_PADS_7
+
+NET: R1_pos
+  - J1 A5
+  - R1 pin1
+
+NET: R2_pos
+  - J1 B5
+  - R2 pin1
+
+NET: U3_PROG
+  - U3 PROG
+  - R3 pin1
+
+NET: VBUS
+  - C2 pin1 (+)
+  - C1 pin1 (+)
+  - U3 VDD
+  - J1 B4A9
+  - J1 A4B9
+
+NET: USB_D_P
+  - U1 IO19
+  - J1 B6
+  - J1 A6
+
+NET: USB_D_N
+  - U1 IO18
+  - J1 B7
+  - J1 A7
+
+NET: BAT_SENSE
+  - R7 pin1
+  - R6 pin2
+  - U1 IO4
+
+NET: HX711_DOUT
+  - U2 DOUT
+  - U1 IO5
+
+NET: HX711_SCK
+  - U2 PD_SCK
+  - U1 IO6
+
+NET: LOAD_A_P
+  - J3 A_PLUS
+  - U2 INPA
+
+NET: LOAD_A_N
+  - J3 A_MINUS
+  - U2 INNA
+
+NET: GND
+  - TP1 GND
+  - J3 E_MINUS
+  - C9 pin2 (-)
+  - C8 pin2 (-)
+  - U2 RATE
+  - U2 XI
+  - U2 VFB
+  - U2 AGND
+  - R7 pin2
+  - C7 pin2 (-)
+  - C6 pin2 (-)
+  - C5 pin2 (-)
+  - C4 pin2 (-)
+  - C3 pin2 (-)
+  - C2 pin2 (-)
+  - C1 pin2 (-)
+  - J2 GND
+  - U4 GND
+  - R3 pin2
+  - U3 VSS
+  - R2 pin2
+  - R1 pin2
+  - J1 B1A12
+  - J1 A1B12
+  - U1 GND13
+  - U1 GND14
+  - U1 GND15
+  - U1 GND16
+  - U1 GND12
+  - U1 GND21
+  - U1 GND20
+  - U1 GND1
+  - U1 GND2
+  - U1 GND3
+  - U1 GND4
+  - U1 GND5
+  - U1 GND6
+  - U1 GND7
+  - U1 GND8
+  - U1 GND9
+  - U1 GND10
+  - U1 GND11
+  - U1 GNDNC
+  - U1 GND19
+  - U1 GND18
+  - U1 GND17
+  - J1 EH4
+  - J1 EH3
+  - J1 EH2
+  - J1 EH1
+
+NET: VBAT
+  - TP1 VBAT
+  - R6 pin1
+  - C3 pin1 (+)
+  - J2 BAT
+  - U4 EN
+  - U4 IN
+  - U3 VBAT
+
+NET: V3_0
+  - TP1 V3_0
+  - J3 E_PLUS
+  - C9 pin1 (+)
+  - C8 pin1 (+)
+  - U2 AVDD
+  - U2 VSUP
+  - C7 pin1 (+)
+  - C6 pin1 (+)
+  - R5 pin2
+  - R4 pin2
+  - U1 3V3
+  - C4 pin1 (+)
+  - U4 OUT
+
+NET: EN
+  - TP1 EN
+  - C5 pin1 (+)
+  - R4 pin1
+  - U1 EN
+
+NET: BOOT
+  - TP1 BOOT
+  - R5 pin1
+  - U1 IO9
+
+NET: U0TXD
+  - TP1 TXD0
+  - U1 TXD0
+
+NET: U0RXD
+  - TP1 RXD0
+  - U1 RXD0
+
+
+COMPONENT_PINS:
+J1 (TYPE_C_31_M_12)
+- pin1(EH2): NETS(GND)
+- pin2(EH1): NETS(GND)
+- pin3(EH4): NETS(GND)
+- pin4(EH3): NETS(GND)
+- pin5(B8): NOT_CONNECTED
+- pin6(A5): NETS(R1_pos)
+- pin7(B7): NETS(USB_D_N)
+- pin8(A6): NETS(USB_D_P)
+- pin9(A7): NETS(USB_D_N)
+- pin10(B6): NETS(USB_D_P)
+- pin11(A8): NOT_CONNECTED
+- pin12(B5): NETS(R2_pos)
+- pin13(A1B12): NETS(GND)
+- pin14(B1A12): NETS(GND)
+- pin15(B4A9): NETS(VBUS)
+- pin16(A4B9): NETS(VBUS)
+
+U3 (MCP73831T_2ACI_OT)
+- pin1(STAT): NOT_CONNECTED
+- pin2(VSS): NETS(GND)
+- pin3(VBAT): NETS(VBAT)
+- pin4(VDD): NETS(VBUS)
+- pin5(PROG): NETS(U3_PROG)
+
+U4 (TLV75530PDBVR)
+- pin1(IN): NETS(VBAT)
+- pin2(GND): NETS(GND)
+- pin3(EN): NETS(VBAT)
+- pin4(NC): NOT_CONNECTED
+- pin5(OUT): NETS(V3_0)
+
+J2 (S2B-PH-SM4-TB_LF__SN_)
+- pin1(BAT): NETS(VBAT)
+- pin2(GND): NETS(GND)
+
+R1 (5.1kΩ undefined)
+- pin1(anode, pos, left): NETS(R1_pos)
+- pin2(cathode, neg, right): NETS(GND)
+
+R2 (5.1kΩ undefined)
+- pin1(anode, pos, left): NETS(R2_pos)
+- pin2(cathode, neg, right): NETS(GND)
+
+R3 (2kΩ undefined)
+- pin1(anode, pos, left): NETS(U3_PROG)
+- pin2(cathode, neg, right): NETS(GND)
+
+C1 (10uF undefined)
+- pin1(pos, anode): NETS(VBUS)
+- pin2(neg, cathode): NETS(GND)
+
+C2 (4.7uF undefined)
+- pin1(pos, anode): NETS(VBUS)
+- pin2(neg, cathode): NETS(GND)
+
+C3 (4.7uF undefined)
+- pin1(pos, anode): NETS(VBAT)
+- pin2(neg, cathode): NETS(GND)
+
+C4 (10uF undefined)
+- pin1(pos, anode): NETS(V3_0)
+- pin2(neg, cathode): NETS(GND)
+
+U1 (ESP32_C3_MINI_1U_H4)
+- pin1(GND17): NETS(GND)
+- pin2(GND18): NETS(GND)
+- pin3(3V3): NETS(V3_0)
+- pin4(NC5): NOT_CONNECTED
+- pin5(IO2): NOT_CONNECTED
+- pin6(IO3): NOT_CONNECTED
+- pin7(NC6): NOT_CONNECTED
+- pin8(EN): NETS(EN)
+- pin9(NC7): NOT_CONNECTED
+- pin10(NC8): NOT_CONNECTED
+- pin11(GND19): NETS(GND)
+- pin12(IO0): NOT_CONNECTED
+- pin13(IO1): NOT_CONNECTED
+- pin14(GNDNC): NETS(GND)
+- pin15(NC4): NOT_CONNECTED
+- pin16(IO10): NOT_CONNECTED
+- pin17(NC9): NOT_CONNECTED
+- pin18(IO4): NETS(BAT_SENSE)
+- pin19(IO5): NETS(HX711_DOUT)
+- pin20(IO6): NETS(HX711_SCK)
+- pin21(IO7): NOT_CONNECTED
+- pin22(IO8): NOT_CONNECTED
+- pin23(IO9): NETS(BOOT)
+- pin24(NC10): NOT_CONNECTED
+- pin25(NC3): NOT_CONNECTED
+- pin26(IO18): NETS(USB_D_N)
+- pin27(IO19): NETS(USB_D_P)
+- pin28(NC2): NOT_CONNECTED
+- pin29(NC1): NOT_CONNECTED
+- pin30(RXD0): NETS(U0RXD)
+- pin31(TXD0): NETS(U0TXD)
+- pin32(NC11): NOT_CONNECTED
+- pin33(NC12): NOT_CONNECTED
+- pin34(NC13): NOT_CONNECTED
+- pin35(NC14): NOT_CONNECTED
+- pin36(GND11): NETS(GND)
+- pin37(GND10): NETS(GND)
+- pin38(GND9): NETS(GND)
+- pin39(GND8): NETS(GND)
+- pin40(GND7): NETS(GND)
+- pin41(GND6): NETS(GND)
+- pin42(GND5): NETS(GND)
+- pin43(GND4): NETS(GND)
+- pin44(GND3): NETS(GND)
+- pin45(GND2): NETS(GND)
+- pin46(GND1): NETS(GND)
+- pin47(GND20): NETS(GND)
+- pin48(GND21): NETS(GND)
+- pin49(GND12): NETS(GND)
+- pin50(GND16): NETS(GND)
+- pin51(GND15): NETS(GND)
+- pin52(GND14): NETS(GND)
+- pin53(GND13): NETS(GND)
+- pin54: NOT_CONNECTED
+- pin55: NOT_CONNECTED
+- pin56: NOT_CONNECTED
+- pin57: NOT_CONNECTED
+- pin58: NOT_CONNECTED
+- pin59: NOT_CONNECTED
+- pin60: NOT_CONNECTED
+- pin61: NOT_CONNECTED
+
+R4 (10kΩ undefined)
+- pin1(anode, pos, left): NETS(EN)
+- pin2(cathode, neg, right): NETS(V3_0)
+
+C5 (1uF undefined)
+- pin1(pos, anode): NETS(EN)
+- pin2(neg, cathode): NETS(GND)
+
+R5 (10kΩ undefined)
+- pin1(anode, pos, left): NETS(BOOT)
+- pin2(cathode, neg, right): NETS(V3_0)
+
+C6 (10uF undefined)
+- pin1(pos, anode): NETS(V3_0)
+- pin2(neg, cathode): NETS(GND)
+
+C7 (100nF undefined)
+- pin1(pos, anode): NETS(V3_0)
+- pin2(neg, cathode): NETS(GND)
+
+R6 (1.5MΩ undefined)
+- pin1(anode, pos, left): NETS(VBAT)
+- pin2(cathode, neg, right): NETS(BAT_SENSE)
+
+R7 (499kΩ undefined)
+- pin1(anode, pos, left): NETS(BAT_SENSE)
+- pin2(cathode, neg, right): NETS(GND)
+
+U2 (HX711)
+- pin1(VSUP): NETS(V3_0)
+- pin2(BASE): NOT_CONNECTED
+- pin3(AVDD): NETS(V3_0)
+- pin4(VFB): NETS(GND)
+- pin5(AGND): NETS(GND)
+- pin6(VBG): NOT_CONNECTED
+- pin7(INNA): NETS(LOAD_A_N)
+- pin8(INPA): NETS(LOAD_A_P)
+- pin9(INNB): NOT_CONNECTED
+- pin10(INPB): NOT_CONNECTED
+- pin11(PD_SCK): NETS(HX711_SCK)
+- pin12(DOUT): NETS(HX711_DOUT)
+- pin13(XO): NOT_CONNECTED
+- pin14(XI): NETS(GND)
+- pin15: NOT_CONNECTED
+- pin16(RATE): NETS(GND)
+
+J3 (LOAD_CELL_4P_GENERIC)
+- pin1(E_PLUS): NETS(V3_0)
+- pin2(A_PLUS): NETS(LOAD_A_P)
+- pin3(A_MINUS): NETS(LOAD_A_N)
+- pin4(E_MINUS): NETS(GND)
+
+C8 (100nF undefined)
+- pin1(pos, anode): NETS(V3_0)
+- pin2(neg, cathode): NETS(GND)
+
+C9 (10uF undefined)
+- pin1(pos, anode): NETS(V3_0)
+- pin2(neg, cathode): NETS(GND)
+
+TP1 (FACTORY_PADS_7)
+- pin1(GND): NETS(GND)
+- pin2(VBAT): NETS(VBAT)
+- pin3(V3_0): NETS(V3_0)
+- pin4(EN): NETS(EN)
+- pin5(BOOT): NETS(BOOT)
+- pin6(TXD0): NETS(U0TXD)
+- pin7(RXD0): NETS(U0RXD)
+
