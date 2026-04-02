@@ -6,7 +6,15 @@ import { TYPE_C_31_M_12 } from "./imports/TYPE_C_31_M_12"
 import { BatteryConnector2P, FactoryPads, LoadCellConnector4P } from "./src/modules/Connectors"
 
 export default () => (
-  <board width="45mm" height="35mm" layers={2}>
+  <board
+    width="48mm"
+    height="38mm"
+    layers={2}
+    minTraceWidth="0.18mm"
+    autorouter={{ preset: "auto_local", local: true, traceClearance: "0.18mm" }}
+    autorouterEffortLevel="100x"
+    autorouterVersion="latest"
+  >
     <group pcbX="-12" pcbY="-10">
       <TYPE_C_31_M_12 name="J1" pcbX="0" pcbY="-4.5" pcbRotation="180deg" schX={-72} schY={-46} />
       <MCP73831T_2ACI_OT name="U3" pcbX="7.4" pcbY="1.8" pcbRotation="90deg" schX={-28} schY={-46} />
@@ -37,12 +45,22 @@ export default () => (
 
     <group pcbX="4" pcbY="11.5">
       <HX711 name="U2" pcbX="0" pcbY="0" pcbRotation="180deg" schX={22} schY={48} />
-      <LoadCellConnector4P name="J3" pcbX="12.8" pcbY="0" schX={-34} schY={56} />
+      <LoadCellConnector4P name="J3" pcbX="14.3" pcbY="0" schX={-34} schY={56} />
       <capacitor name="C8" capacitance="100nF" footprint="0402" pcbX="-8.8" pcbY="-4" schX={4} schY={58} />
       <capacitor name="C9" capacitance="10uF" footprint="0603" pcbX="-8.8" pcbY="-1.2" schX={12} schY={58} />
     </group>
 
-    <FactoryPads name="TP1" pcbX="-10" pcbY="14.5" schX={72} schY={54} />
+    <FactoryPads name="TP1" pcbX="-10" pcbY="16.5" schX={72} schY={54} />
+
+    <copperpour
+      name="GND_BOTTOM"
+      layer="bottom"
+      connectsTo="net.GND"
+      boardEdgeMargin="0.35mm"
+      clearance="0.18mm"
+      padMargin="0.18mm"
+      traceMargin="0.18mm"
+    />
 
     <trace from="J1.EH1" to="net.GND" />
     <trace from="J1.EH2" to="net.GND" />
@@ -72,9 +90,9 @@ export default () => (
     <trace from="U1.GND13" to="net.GND" />
     <trace from="J1.A1B12" to="net.GND" />
     <trace from="J1.B1A12" to="net.GND" />
-    <trace from="J1.A5" to="R1.pin1" />
+    <trace path={["J1.A5", "R1.pin1"]} />
     <trace from="R1.pin2" to="net.GND" />
-    <trace from="J1.B5" to="R2.pin1" />
+    <trace path={["J1.B5", "R2.pin1"]} />
     <trace from="R2.pin2" to="net.GND" />
     <trace from="J1.A4B9" to="net.VBUS" />
     <trace from="J1.B4A9" to="net.VBUS" />
@@ -86,7 +104,7 @@ export default () => (
     <trace from="U3.VDD" to="net.VBUS" />
     <trace from="U3.VSS" to="net.GND" />
     <trace from="U3.VBAT" to="net.VBAT" />
-    <trace from="U3.PROG" to="R3.pin1" />
+    <trace path={["U3.PROG", "R3.pin1"]} />
     <trace from="R3.pin2" to="net.GND" />
 
     <trace from="U4.IN" to="net.VBAT" />
@@ -107,29 +125,33 @@ export default () => (
     <trace from="C4.pin2" to="net.GND" />
 
     <trace from="U1.3V3" to="net.V3_0" />
-    <trace from="U1.EN" to="net.EN" />
-    <trace from="R4.pin1" to="net.EN" />
+    <trace
+      from="U1.IO19"
+      to="net.USB_D_P"
+      pcbRouteHints={[
+        { x: -12, y: -14 },
+        { x: -2, y: -14 },
+        { x: 10, y: -8.5 },
+      ]}
+    />
+    <trace
+      from="U1.IO18"
+      to="net.USB_D_N"
+      pcbRouteHints={[
+        { x: -13, y: -12.8 },
+        { x: -1.5, y: -12.8 },
+        { x: 9.5, y: -7.2 },
+      ]}
+    />
     <trace from="R4.pin2" to="net.V3_0" />
-    <trace from="C5.pin1" to="net.EN" />
     <trace from="C5.pin2" to="net.GND" />
-    <trace from="U1.IO9" to="net.BOOT" />
-    <trace from="R5.pin1" to="net.BOOT" />
     <trace from="R5.pin2" to="net.V3_0" />
-    <trace from="U1.IO19" to="net.USB_D_P" />
-    <trace from="U1.IO18" to="net.USB_D_N" />
-    <trace from="U1.IO6" to="net.HX711_SCK" />
-    <trace from="U1.IO5" to="net.HX711_DOUT" />
-    <trace from="U1.IO4" to="net.BAT_SENSE" />
-    <trace from="U1.TXD0" to="net.U0TXD" />
-    <trace from="U1.RXD0" to="net.U0RXD" />
     <trace from="C6.pin1" to="net.V3_0" />
     <trace from="C6.pin2" to="net.GND" />
     <trace from="C7.pin1" to="net.V3_0" />
     <trace from="C7.pin2" to="net.GND" />
 
     <trace from="R6.pin1" to="net.VBAT" />
-    <trace from="R6.pin2" to="net.BAT_SENSE" />
-    <trace from="R7.pin1" to="net.BAT_SENSE" />
     <trace from="R7.pin2" to="net.GND" />
 
     <trace from="U2.VSUP" to="net.V3_0" />
@@ -138,10 +160,6 @@ export default () => (
     <trace from="U2.VFB" to="net.GND" />
     <trace from="U2.XI" to="net.GND" />
     <trace from="U2.RATE" to="net.GND" />
-    <trace from="U2.DOUT" to="net.HX711_DOUT" />
-    <trace from="U2.PD_SCK" to="net.HX711_SCK" />
-    <trace from="U2.INPA" to="net.LOAD_A_P" />
-    <trace from="U2.INNA" to="net.LOAD_A_N" />
     <trace from="C8.pin1" to="net.V3_0" />
     <trace from="C8.pin2" to="net.GND" />
     <trace from="C9.pin1" to="net.V3_0" />
@@ -149,15 +167,72 @@ export default () => (
 
     <trace from="J3.E_PLUS" to="net.V3_0" />
     <trace from="J3.E_MINUS" to="net.GND" />
-    <trace from="J3.A_PLUS" to="net.LOAD_A_P" />
-    <trace from="J3.A_MINUS" to="net.LOAD_A_N" />
-
     <trace from="TP1.GND" to="net.GND" />
     <trace from="TP1.VBAT" to="net.VBAT" />
     <trace from="TP1.V3_0" to="net.V3_0" />
-    <trace from="TP1.EN" to="net.EN" />
-    <trace from="TP1.BOOT" to="net.BOOT" />
-    <trace from="TP1.TXD0" to="net.U0TXD" />
-    <trace from="TP1.RXD0" to="net.U0RXD" />
+
+    <trace from="U1.EN" to="R4.pin1" />
+    <trace from="R4.pin1" to="C5.pin1" />
+    <trace
+      from="C5.pin1"
+      to="TP1.EN"
+      pcbRouteHints={[
+        { x: -9, y: 8.5 },
+        { x: -9, y: 13.5 },
+      ]}
+    />
+    <trace from="U1.IO9" to="R5.pin1" />
+    <trace
+      from="R5.pin1"
+      to="TP1.BOOT"
+      pcbRouteHints={[
+        { x: 12, y: 12.5 },
+        { x: -6.5, y: 12.5 },
+      ]}
+    />
+    <trace
+      path={["U1.IO6", "U2.PD_SCK"]}
+      pcbRouteHints={[
+        { x: 10.8, y: 3.5 },
+        { x: 10.8, y: 8.5 },
+      ]}
+    />
+    <trace
+      path={["U1.IO5", "U2.DOUT"]}
+      pcbRouteHints={[
+        { x: 9.2, y: 4 },
+        { x: 9.2, y: 9.5 },
+      ]}
+    />
+    <trace from="U1.IO4" to="R6.pin2" pcbRouteHints={[{ x: -3, y: 10.5 }, { x: -6.5, y: 10.5 }]} />
+    <trace from="R6.pin2" to="R7.pin1" />
+    <trace
+      path={["U1.TXD0", "TP1.TXD0"]}
+      pcbRouteHints={[
+        { x: 16, y: 14.8 },
+        { x: 0, y: 14.8 },
+      ]}
+    />
+    <trace
+      path={["U1.RXD0", "TP1.RXD0"]}
+      pcbRouteHints={[
+        { x: 15, y: 15.8 },
+        { x: 2, y: 15.8 },
+      ]}
+    />
+    <trace
+      path={["U2.INPA", "J3.A_PLUS"]}
+      pcbRouteHints={[
+        { x: 12, y: 14.2 },
+        { x: 18.3, y: 14.2 },
+      ]}
+    />
+    <trace
+      path={["U2.INNA", "J3.A_MINUS"]}
+      pcbRouteHints={[
+        { x: 12, y: 8.8 },
+        { x: 20.8, y: 8.8 },
+      ]}
+    />
   </board>
 )

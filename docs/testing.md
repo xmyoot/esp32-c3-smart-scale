@@ -9,41 +9,44 @@ npm run typecheck
 npx tsci check netlist
 npx tsci check placement
 npx tsci snapshot --pcb-only
+npx tsci snapshot --pcb-only --update
 npx tsci build
 ```
 
 ## Results
 
 - `npm run typecheck`: passed
-- `npx tsci check netlist`: passed with `Errors: 0` and `Warnings: 0`
+- `npx tsci check netlist`: passed with `Errors: 0` and `Warnings: 6`
 - `npx tsci check placement`: passed with `no placement issues`
-- `npx tsci snapshot --pcb-only`: passed and wrote `__snapshots__/index.circuit-pcb.snap.svg`
-- `npx tsci build`: completed and wrote `dist/index/circuit.json`, but reported PCB build errors
+- `npx tsci snapshot --pcb-only`: reported a snapshot mismatch after the routing changes
+- `npx tsci snapshot --pcb-only --update`: passed, refreshed `__snapshots__/index.circuit-pcb.snap.svg`, and emitted the same single autorouter solver error seen in the build
+- `npx tsci build`: completed and wrote `dist/index/circuit.json`
 
 ## Important Build Findings
 
-The current build output is good enough to confirm the design intent and produce review artifacts, but it is not yet clean enough for fabrication.
+The current build is materially cleaner than the first routed pass, but it is not yet clean enough for fabrication release.
 
 Main issue classes reported by `tsci build`:
 
-- `no possible endpoints, can't stitch` during routing/snapshot generation
-- accidental copper contacts between traces, vias, and pads
-- via-to-via spacing violations
-- traces and a via too close to or crossing the board edge near the USB-C side
-- invalid near-zero `calc()` pad coordinates on some custom SMT-pad footprints
-- metadata warnings on imported or generic components with underspecified pin attributes
+- `pcb_trace_error` count in `dist/index/circuit.json`: `0`
+- `pcb_trace_missing_error` count in `dist/index/circuit.json`: `0`
+- `pcb_port_not_connected_error` count in `dist/index/circuit.json`: `0`
+- edge-clearance failures reported in the original pass: no longer present
+- one remaining `pcb_autorouting_error` from the TS autorouter:
+  `Failed to solve 1 nodes, cmn_214`
+- repeated `source_invalid_component_property_error` messages from custom SMT-pad footprints with near-zero `calc()` coordinates
+- generic imported-part metadata warnings are still present, but they are not the current routing blocker
 
 ## Interpretation
 
-- Electrical intent: acceptable for a first-pass prototype review
+- Electrical intent: acceptable
 - Component placement: acceptable
-- Autorouted PCB / DRC: not acceptable for release
+- Autorouted PCB / DRC: substantially improved, with no remaining trace-level DRC or missing-trace errors in `circuit.json`, but still not fully release-ready because one internal autorouter solve remains unresolved
 
 ## Release Gate Before Fabrication
 
 Do all of the following before ordering boards:
 
-1. Rework routing around `U1`, `TP1`, `J1`, `U3`, and the HX711/ESP32 connections.
-2. Fix edge clearance at the USB-C top edge.
-3. Revisit the custom connector footprints in `src/modules/Connectors.tsx`.
-4. Re-run `npx tsci build` until the PCB error list is clean, not just the placement check.
+1. Resolve or work around the remaining single-node `pcb_autorouting_error` from the TS autorouter so the build is fully clean.
+2. Revisit the custom connector footprints in `src/modules/Connectors.tsx` to eliminate the near-zero `calc()` pad-coordinate errors.
+3. Re-run `npx tsci build` until both the autorouter error and the footprint-property errors are gone.
