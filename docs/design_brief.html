@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Engineering Design Brief | ESP32-C3 Smart Scale</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d0f11;
+      --surface: #13171b;
+      --surface-hi: #1a1f25;
+      --border: #252c35;
+      --border-accent: #2e3740;
+      --accent: #e8a020;
+      --info: #3b82f6;
+      --ok: #22c55e;
+      --danger: #ef4444;
+      --text: #d4dbe4;
+      --muted: #6b7a8a;
+      --dim: #3d4c5a;
+      --shadow: rgba(0, 0, 0, 0.28);
+      --maxw: 1240px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top right, rgba(232,160,32,0.08), transparent 28%), linear-gradient(180deg, #0d0f11 0%, #0d1014 100%);
+      color: var(--text);
+      font-family: "IBM Plex Sans", sans-serif;
+      line-height: 1.55;
+    }
+    a { color: var(--info); text-decoration: none; }
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      padding: 14px 24px;
+      background: rgba(13, 15, 17, 0.94);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+    }
+    .site-header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .site-title, .site-meta, .section-number, .eyebrow, .badge, .callout-title,
+    .order-title, .diagram-caption, .card-option, .stat-label, .pro-con-label,
+    .step-title, .site-footer, table, nav {
+      font-family: "IBM Plex Mono", monospace;
+    }
+    .site-title { font-size: 15px; font-weight: 700; }
+    .site-meta { font-size: 12px; color: var(--muted); }
+    .site-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 12px;
+    }
+    .site-nav a { color: var(--muted); }
+    .site-nav a:hover { color: var(--accent); }
+    main {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .hero {
+      padding: 28px;
+      background: linear-gradient(180deg, rgba(26,31,37,0.92), rgba(19,23,27,0.96));
+      border: 1px solid var(--border);
+      box-shadow: 0 18px 48px var(--shadow);
+    }
+    .eyebrow {
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .hero h1 {
+      margin: 0 0 12px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 1.08;
+    }
+    .hero p {
+      max-width: 900px;
+      margin: 0 0 22px;
+      color: var(--text);
+      font-size: 16px;
+    }
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 1px;
+      background: var(--border);
+    }
+    .stat {
+      background: var(--surface);
+      padding: 16px;
+      min-height: 102px;
+    }
+    .stat-val {
+      color: var(--accent);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .stat-label {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    section { margin-top: 28px; }
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      padding-bottom: 10px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-accent);
+    }
+    .section-number {
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .section-header h2 {
+      margin: 0;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 22px;
+    }
+    .design-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .design-card {
+      position: relative;
+      padding: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      min-height: 100%;
+    }
+    .design-card.recommended {
+      border-color: var(--accent);
+      box-shadow: inset 0 0 0 1px rgba(232,160,32,0.18);
+    }
+    .recommended-banner {
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      right: -1px;
+      padding: 6px 10px;
+      background: var(--accent);
+      color: #111;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .card-option {
+      color: var(--dim);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .card-title {
+      margin: 0 0 8px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 18px;
+    }
+    .card-desc {
+      color: var(--text);
+      margin: 0 0 16px;
+    }
+    .pros-cons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .pro-con-label {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .pro-con-item {
+      color: var(--text);
+      font-size: 14px;
+      margin-bottom: 7px;
+      padding-left: 14px;
+      position: relative;
+    }
+    .pro-con-item::before {
+      content: "—";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+    }
+    .card-verdict {
+      margin-top: auto;
+      color: var(--muted);
+      font-size: 14px;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+    }
+    .card-verdict strong { color: var(--accent); }
+    .callout {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-left: 4px solid var(--info);
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .callout.warning { border-left-color: var(--accent); }
+    .callout.info { border-left-color: var(--info); }
+    .callout.success { border-left-color: var(--ok); }
+    .callout-title {
+      margin-bottom: 8px;
+      color: var(--text);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .spec-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 16px;
+    }
+    .spec-block h3,
+    .production h3 {
+      margin: 0 0 14px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 17px;
+    }
+    .spec-table,
+    .bom-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .spec-table td,
+    .spec-table th,
+    .bom-table td,
+    .bom-table th {
+      border: 1px solid var(--border);
+      padding: 9px 10px;
+      vertical-align: top;
+    }
+    .spec-table td:first-child { width: 220px; color: var(--muted); }
+    .spec-table td:last-child { color: var(--dim); }
+    .spec-table tr:hover td,
+    .bom-table tr:hover td { background: rgba(59,130,246,0.04); }
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      border: 1px solid currentColor;
+      text-transform: uppercase;
+    }
+    .badge-ok { color: var(--ok); }
+    .badge-warn { color: var(--accent); }
+    .badge-critical { color: var(--danger); }
+    .diagram-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 14px;
+      margin-bottom: 18px;
+    }
+    .diagram-caption {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .bom-table td:nth-child(3) {
+      color: var(--info);
+      font-family: "IBM Plex Mono", monospace;
+    }
+    .bom-table td:nth-child(5) {
+      color: var(--ok);
+      font-family: "IBM Plex Mono", monospace;
+    }
+    .bom-group-header td {
+      background: var(--surface-hi);
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+    }
+    .bom-total td {
+      background: rgba(232,160,32,0.08);
+    }
+    .bom-total td:last-child,
+    .bom-total td:nth-child(5) {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .subline {
+      display: block;
+      margin-top: 2px;
+      color: var(--dim);
+      font-size: 10px;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 16px;
+    }
+    .step-num {
+      font-family: "IBM Plex Mono", monospace;
+      color: rgba(232,160,32,0.45);
+      font-size: 34px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .step-title {
+      margin: 0 0 6px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .order-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .order-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 16px;
+    }
+    .order-title {
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .order-params {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 12px;
+      font-size: 13px;
+    }
+    .order-params div:nth-child(odd) {
+      color: var(--muted);
+      font-family: "IBM Plex Mono", monospace;
+    }
+    .site-footer {
+      max-width: var(--maxw);
+      margin: 28px auto 32px;
+      padding: 14px 24px 0;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    ul { padding-left: 18px; }
+    li { margin-bottom: 8px; }
+    @media (max-width: 1040px) {
+      .hero-stats,
+      .design-grid,
+      .spec-grid,
+      .order-grid,
+      .steps { grid-template-columns: 1fr; }
+      .pros-cons { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      .site-header { padding: 12px 16px; align-items: flex-start; flex-direction: column; }
+      main { padding: 16px; }
+      .hero { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-left">
+      <div class="site-title">ESP32-C3 Smart Scale</div>
+      <div class="site-meta">Engineering Design Brief | Rev A0 | 2026-04-02</div>
+    </div>
+    <nav class="site-nav">
+      <a href="#hero">Hero</a>
+      <a href="#design">Design</a>
+      <a href="#spec">Spec</a>
+      <a href="#schematic">Schematic</a>
+      <a href="#bom">BOM</a>
+      <a href="#assembly">Assembly</a>
+      <a href="#production">Production</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="hero">
+      <div class="eyebrow">Engineering Design Brief</div>
+      <h1>Low-Power ESP32-C3 Smart Scale Main Board</h1>
+      <p>
+        This project is a compact, battery-backed smart-scale PCB built around the
+        <strong>ESP32-C3-MINI-1U</strong> with external antenna support, a dedicated
+        <strong>HX711</strong> load-cell ADC, <strong>USB-C charging</strong> for a 1S
+        3000 mAh LiPo, and explicit low-sleep-current design choices. The cheapest
+        sensible product architecture is a battery-always-present system using a
+        linear charger, a low-IQ 3.0 V rail, a switched battery divider, and direct
+        USB Serial/JTAG routing into the ESP32-C3 so there is no USB-UART bridge tax.
+      </p>
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-val">&lt;40 uA</div>
+          <div class="stat-label">Target Deep-Sleep Current<br />system-level goal, excluding charger leakage variance</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val">24-bit</div>
+          <div class="stat-label">Weight Front End<br />HX711, 10 SPS preferred</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val">3.0 V</div>
+          <div class="stat-label">Main Rail<br />chosen to fit ESP32-C3 supply window with low cost</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val">500 mA</div>
+          <div class="stat-label">Charge Setpoint<br />initial recommendation for thermal and USB simplicity</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val">45 × 35 mm</div>
+          <div class="stat-label">Board Envelope<br />explicit first-pass assumption</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="design">
+      <div class="section-header">
+        <div class="section-number">01</div>
+        <h2>Design Options</h2>
+      </div>
+      <div class="design-grid">
+        <article class="design-card recommended">
+          <div class="recommended-banner">Recommended</div>
+          <div class="card-option">Option A</div>
+          <h3 class="card-title">LDO-Based Battery-Backed Product Board</h3>
+          <p class="card-desc">
+            Use the battery as the always-present energy source, charge it from USB-C
+            with <strong>MCP73831</strong>, regulate the system with a low-IQ
+            <strong>TLV75530</strong>, and measure the bridge with <strong>HX711</strong>.
+            Route USB D+/D- straight into the ESP32-C3 USB Serial/JTAG pins.
+          </p>
+          <div class="pros-cons">
+            <div>
+              <div class="pro-con-label">Pros</div>
+              <div class="pro-con-item">Lowest BOM cost while staying product-grade</div>
+              <div class="pro-con-item">No USB-UART bridge or power-path PMIC overhead</div>
+              <div class="pro-con-item">Simple firmware and assembly flow</div>
+            </div>
+            <div>
+              <div class="pro-con-label">Cons</div>
+              <div class="pro-con-item">Not optimized for battery-less USB operation</div>
+              <div class="pro-con-item">Active efficiency lower than a switching rail</div>
+              <div class="pro-con-item">Charge/load interaction must be budgeted</div>
+            </div>
+          </div>
+          <div class="card-verdict"><strong>Verdict:</strong> best fit for “cheapest sensible architecture” and a battery-backed scale product.</div>
+        </article>
+
+        <article class="design-card">
+          <div class="card-option">Option B</div>
+          <h3 class="card-title">Buck-Regulated Battery System</h3>
+          <p class="card-desc">
+            Keep the same charger and metrology path, but replace the LDO with a
+            low-IQ switching regulator. This improves active efficiency and thermal
+            margin during Wi-Fi bursts.
+          </p>
+          <div class="pros-cons">
+            <div>
+              <div class="pro-con-label">Pros</div>
+              <div class="pro-con-item">Better energy use during radio activity</div>
+              <div class="pro-con-item">Lower thermal stress at higher average load</div>
+              <div class="pro-con-item">More headroom if the feature set grows</div>
+            </div>
+            <div>
+              <div class="pro-con-label">Cons</div>
+              <div class="pro-con-item">Higher BOM cost</div>
+              <div class="pro-con-item">More EMI and layout discipline required</div>
+              <div class="pro-con-item">Solves a problem the present use case may not have</div>
+            </div>
+          </div>
+          <div class="card-verdict"><strong>Verdict:</strong> technically cleaner for efficiency, but not the cheapest sensible first product architecture.</div>
+        </article>
+
+        <article class="design-card">
+          <div class="card-option">Option C</div>
+          <h3 class="card-title">Premium Metrology + Power-Path Platform</h3>
+          <p class="card-desc">
+            Use a higher-spec ADC and a charger with full power-path behavior so the
+            board behaves more like a mains-attached product while charging and running.
+          </p>
+          <div class="pros-cons">
+            <div>
+              <div class="pro-con-label">Pros</div>
+              <div class="pro-con-item">Best behavior with low battery during USB attach</div>
+              <div class="pro-con-item">More precision and firmware control headroom</div>
+              <div class="pro-con-item">Easier to scale into a more premium product tier</div>
+            </div>
+            <div>
+              <div class="pro-con-label">Cons</div>
+              <div class="pro-con-item">Breaks the low-cost target</div>
+              <div class="pro-con-item">Longer layout and bring-up cycle</div>
+              <div class="pro-con-item">Unnecessary complexity for the current brief</div>
+            </div>
+          </div>
+          <div class="card-verdict"><strong>Verdict:</strong> reserve for a later revision if battery-less USB behavior or higher precision becomes mandatory.</div>
+        </article>
+      </div>
+      <div class="callout success">
+        <div class="callout-title">Chosen Direction</div>
+        Option A is the recommended baseline because the product is fundamentally battery-backed, the
+        `ESP32-C3-MINI-1U` allows cheap direct USB programming, and the scale’s mostly-sleeping duty
+        cycle does not justify a costlier switching power tree in the first revision.
+      </div>
+    </section>
+
+    <section id="spec">
+      <div class="section-header">
+        <div class="section-number">02</div>
+        <h2>System Specification</h2>
+      </div>
+      <div class="spec-grid">
+        <div class="spec-block">
+          <h3>Power Chain</h3>
+          <table class="spec-table">
+            <tbody>
+              <tr><td>USB input</td><td>`USB-C`, sink-only, `5 V` default current</td><td>Use two `5.1 kΩ` CC pull-downs; no PD controller</td></tr>
+              <tr><td>Charger IC</td><td>`MCP73831T-2ACI/OT` <span class="badge badge-ok">ok</span></td><td>4.2 V termination; set `500 mA` charge current initially</td></tr>
+              <tr><td>Main rail</td><td>`3.0 V` via `TLV75530PDBVR` <span class="badge badge-ok">ok</span></td><td>Chosen to stay inside module supply window while using most of the LiPo curve</td></tr>
+              <tr><td>Battery pack</td><td>`1S 3.7 V 3000 mAh` nominal</td><td>Always-installed assumption; no battery-less design target</td></tr>
+              <tr><td>Sleep-current target</td><td>`&lt;40 uA` system goal <span class="badge badge-warn">goal</span></td><td>Depends on divider gating, HX711 power-down, and charger/leakage details</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="spec-block">
+          <h3>Measurement Chain</h3>
+          <table class="spec-table">
+            <tbody>
+              <tr><td>Load-cell ADC</td><td>`HX711` <span class="badge badge-ok">ok</span></td><td>24-bit weigh-scale front end; `10 SPS` preferred for noise performance</td></tr>
+              <tr><td>Bridge supply</td><td>From regulated system rail</td><td>Simplifies BOM and keeps analog domain referenced to main rail</td></tr>
+              <tr><td>Battery measurement</td><td>Switched divider into ESP32 ADC <span class="badge badge-ok">ok</span></td><td>Cheaper than a gauge and no always-on divider bleed</td></tr>
+              <tr><td>Calibration strategy</td><td>Zero + known reference mass</td><td>Factory coefficient stored in NVM</td></tr>
+              <tr><td>Optional optimization</td><td>PFET bridge gating <span class="badge badge-warn">optional</span></td><td>Use if the extra analog switch complexity is justified by sleep-current measurements</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="spec-block">
+          <h3>Product Integration</h3>
+          <table class="spec-table">
+            <tbody>
+              <tr><td>MCU / radio</td><td>`ESP32-C3-MINI-1U-H4` <span class="badge badge-ok">ok</span></td><td>External antenna connector already integrated on module</td></tr>
+              <tr><td>Programming path</td><td>USB Serial/JTAG over same USB-C port</td><td>Route `GPIO19` to D+, `GPIO18` to D-</td></tr>
+              <tr><td>Factory pads</td><td>`GND`, `VBAT`, `3V0`, `EN`, `BOOT`, UART</td><td>Provides manufacturing and recovery access even if USB path is unavailable</td></tr>
+              <tr><td>Board stackup</td><td>2-layer recommended for cost <span class="badge badge-warn">assumed</span></td><td>Enough if antenna keepout and analog partitioning are respected</td></tr>
+              <tr><td>Board size</td><td>`45 x 35 mm` <span class="badge badge-warn">assumed</span></td><td>Compact but still realistic for connector spacing and keepouts</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="callout warning">
+        <div class="callout-title">Critical Constraint</div>
+        This design assumes the battery is always fitted. If the product must boot and run cleanly from USB-C with an empty or disconnected battery, the charger section should move to a true power-path architecture in the next revision.
+      </div>
+    </section>
+
+    <section id="schematic">
+      <div class="section-header">
+        <div class="section-number">03</div>
+        <h2>System Schematic</h2>
+      </div>
+
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 900 380" width="100%" max-width="900" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arr" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+              <polygon points="0,0 10,4 0,8" fill="#e8a020" />
+            </marker>
+            <marker id="arrBlue" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+              <polygon points="0,0 10,4 0,8" fill="#3b82f6" />
+            </marker>
+            <marker id="arrGreen" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+              <polygon points="0,0 10,4 0,8" fill="#22c55e" />
+            </marker>
+          </defs>
+          <rect x="28" y="38" width="130" height="74" fill="#13171b" stroke="#252c35" stroke-width="1.5" rx="2" />
+          <text x="93" y="66" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="12" text-anchor="middle">USB-C</text>
+          <text x="93" y="84" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">VBUS + D+/D-</text>
+
+          <rect x="204" y="38" width="144" height="74" fill="#13171b" stroke="#252c35" stroke-width="1.5" rx="2" />
+          <text x="276" y="66" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="12" text-anchor="middle">MCP73831</text>
+          <text x="276" y="84" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">1S LiPo Charger</text>
+
+          <rect x="400" y="38" width="138" height="74" fill="#13171b" stroke="#252c35" stroke-width="1.5" rx="2" />
+          <text x="469" y="66" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="12" text-anchor="middle">1S LiPo</text>
+          <text x="469" y="84" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">3000 mAh</text>
+
+          <rect x="586" y="38" width="136" height="74" fill="#13171b" stroke="#252c35" stroke-width="1.5" rx="2" />
+          <text x="654" y="66" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="12" text-anchor="middle">TLV75530</text>
+          <text x="654" y="84" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">3.0 V / 500 mA</text>
+
+          <rect x="570" y="164" width="154" height="86" fill="#1a1f25" stroke="#2e3740" stroke-width="1.5" rx="3" />
+          <text x="647" y="192" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="12" text-anchor="middle">ESP32-C3-MINI-1U</text>
+          <text x="647" y="210" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">Wi-Fi / BLE / USB Serial-JTAG</text>
+          <text x="647" y="228" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">Battery ADC + app firmware</text>
+
+          <rect x="330" y="172" width="154" height="78" fill="#13171b" stroke="#252c35" stroke-width="1.5" rx="2" />
+          <text x="407" y="200" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="12" text-anchor="middle">HX711</text>
+          <text x="407" y="218" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">24-bit Scale ADC</text>
+
+          <rect x="128" y="168" width="142" height="86" fill="#13171b" stroke="#252c35" stroke-width="1.5" rx="2" />
+          <text x="199" y="198" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="12" text-anchor="middle">Load Cell</text>
+          <text x="199" y="216" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">4-wire bridge sensor</text>
+          <text x="199" y="234" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">E+, E-, A+, A-</text>
+
+          <rect x="756" y="170" width="116" height="82" fill="#13171b" stroke="#252c35" stroke-width="1.5" rx="2" />
+          <text x="814" y="198" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="12" text-anchor="middle">Factory Pads</text>
+          <text x="814" y="216" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">EN / BOOT / UART</text>
+
+          <line x1="158" y1="75" x2="204" y2="75" stroke="#e8a020" stroke-width="3" marker-end="url(#arr)" />
+          <line x1="348" y1="75" x2="400" y2="75" stroke="#e8a020" stroke-width="3" marker-end="url(#arr)" />
+          <line x1="538" y1="75" x2="586" y2="75" stroke="#e8a020" stroke-width="3" marker-end="url(#arr)" />
+          <line x1="654" y1="112" x2="647" y2="164" stroke="#22c55e" stroke-width="3" marker-end="url(#arrGreen)" />
+
+          <line x1="270" y1="212" x2="330" y2="212" stroke="#6b7a8a" stroke-width="2.5" stroke-dasharray="4 3" marker-end="url(#arr)" />
+          <line x1="484" y1="212" x2="570" y2="212" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="4 3" marker-end="url(#arrBlue)" />
+          <line x1="158" y1="96" x2="570" y2="184" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="4 3" marker-end="url(#arrBlue)" />
+          <line x1="724" y1="212" x2="756" y2="212" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="4 3" marker-end="url(#arrBlue)" />
+
+          <rect x="258" y="306" width="384" height="44" fill="none" stroke="#252c35" stroke-width="1" rx="2" />
+          <line x1="278" y1="329" x2="314" y2="329" stroke="#e8a020" stroke-width="3" />
+          <text x="324" y="333" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="10">Main power path</text>
+          <line x1="426" y1="329" x2="462" y2="329" stroke="#22c55e" stroke-width="3" />
+          <text x="472" y="333" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="10">Regulated 3.0 V</text>
+          <line x1="560" y1="329" x2="596" y2="329" stroke="#3b82f6" stroke-width="3" stroke-dasharray="4 3" />
+          <text x="606" y="333" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="10">Control / data</text>
+        </svg>
+        <div class="diagram-caption">Fig 1. System block diagram for the recommended architecture.</div>
+      </div>
+
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 480 480" width="100%" max-width="480" xmlns="http://www.w3.org/2000/svg">
+          <rect x="55" y="42" width="370" height="386" fill="none" stroke="#2e3740" stroke-width="1.5" rx="3" />
+          <rect x="79" y="58" width="92" height="34" fill="#13171b" stroke="#252c35" stroke-width="1.2" rx="2" />
+          <text x="125" y="80" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">USB-C</text>
+
+          <rect x="80" y="118" width="92" height="62" fill="#13171b" stroke="#252c35" stroke-width="1.2" rx="2" />
+          <text x="126" y="144" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">Charger</text>
+          <text x="126" y="160" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="8" text-anchor="middle">MCP73831</text>
+
+          <rect x="196" y="92" width="154" height="112" fill="#1a1f25" stroke="#e8a020" stroke-width="1.4" rx="2" />
+          <text x="273" y="120" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="12" text-anchor="middle">ESP32-C3-MINI-1U</text>
+          <text x="273" y="138" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="9" text-anchor="middle">Antenna edge faces right</text>
+          <line x1="350" y1="92" x2="350" y2="204" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="4 3" />
+          <text x="381" y="146" fill="#ef4444" font-family="'IBM Plex Mono', monospace" font-size="8" text-anchor="middle">keepout</text>
+
+          <rect x="205" y="234" width="100" height="58" fill="#13171b" stroke="#252c35" stroke-width="1.2" rx="2" />
+          <text x="255" y="258" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">HX711</text>
+          <text x="255" y="274" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="8" text-anchor="middle">quiet analog island</text>
+
+          <rect x="90" y="246" width="84" height="42" fill="#13171b" stroke="#252c35" stroke-width="1.2" rx="2" />
+          <text x="132" y="271" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="9" text-anchor="middle">Load Cell Conn</text>
+
+          <rect x="84" y="330" width="98" height="42" fill="#13171b" stroke="#252c35" stroke-width="1.2" rx="2" />
+          <text x="133" y="355" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="9" text-anchor="middle">Battery JST</text>
+
+          <rect x="316" y="238" width="76" height="46" fill="#13171b" stroke="#252c35" stroke-width="1.2" rx="2" />
+          <text x="354" y="265" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="9" text-anchor="middle">LDO</text>
+
+          <rect x="304" y="328" width="98" height="42" fill="#13171b" stroke="#252c35" stroke-width="1.2" rx="2" />
+          <text x="353" y="354" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="9" text-anchor="middle">Factory Pads</text>
+
+          <circle cx="78" cy="78" r="4.5" fill="none" stroke="#6b7a8a" stroke-width="1.2" />
+          <circle cx="402" cy="78" r="4.5" fill="none" stroke="#6b7a8a" stroke-width="1.2" />
+          <circle cx="78" cy="392" r="4.5" fill="none" stroke="#6b7a8a" stroke-width="1.2" />
+          <circle cx="402" cy="392" r="4.5" fill="none" stroke="#6b7a8a" stroke-width="1.2" />
+
+          <line x1="55" y1="444" x2="425" y2="444" stroke="#3d4c5a" stroke-width="1" />
+          <line x1="55" y1="438" x2="55" y2="450" stroke="#3d4c5a" stroke-width="1" />
+          <line x1="425" y1="438" x2="425" y2="450" stroke="#3d4c5a" stroke-width="1" />
+          <text x="240" y="438" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">45 mm assumed</text>
+
+          <line x1="440" y1="42" x2="440" y2="428" stroke="#3d4c5a" stroke-width="1" />
+          <line x1="434" y1="42" x2="446" y2="42" stroke="#3d4c5a" stroke-width="1" />
+          <line x1="434" y1="428" x2="446" y2="428" stroke="#3d4c5a" stroke-width="1" />
+          <text x="447" y="238" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="10" transform="rotate(90 447 238)" text-anchor="middle">35 mm assumed</text>
+        </svg>
+        <div class="diagram-caption">Fig 2. First-pass board floorplan and keepout concept.</div>
+      </div>
+
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 860 300" width="100%" max-width="860" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arr2" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+              <polygon points="0,0 10,4 0,8" fill="#3b82f6" />
+            </marker>
+          </defs>
+          <rect x="58" y="82" width="140" height="116" fill="#13171b" stroke="#252c35" stroke-width="1.5" rx="2" />
+          <text x="128" y="106" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="12" text-anchor="middle">Load Cell</text>
+          <text x="128" y="126" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">E+, E-, A+, A-</text>
+          <line x1="198" y1="106" x2="292" y2="106" stroke="#e8a020" stroke-width="2.5" />
+          <line x1="198" y1="128" x2="292" y2="128" stroke="#e8a020" stroke-width="2.5" />
+          <line x1="198" y1="150" x2="292" y2="150" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="4 3" />
+          <line x1="198" y1="172" x2="292" y2="172" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="4 3" />
+          <text x="226" y="100" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="9">E+</text>
+          <text x="226" y="122" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="9">E-</text>
+          <text x="226" y="144" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="9">A+</text>
+          <text x="226" y="166" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="9">A-</text>
+
+          <rect x="292" y="58" width="170" height="164" fill="#1a1f25" stroke="#2e3740" stroke-width="1.5" rx="2" />
+          <text x="377" y="84" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="12" text-anchor="middle">HX711</text>
+          <text x="316" y="110" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="10">INA+</text>
+          <text x="316" y="132" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="10">INA-</text>
+          <text x="316" y="154" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="10">AVDD / DVDD</text>
+          <text x="316" y="176" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="10">PD_SCK</text>
+          <text x="316" y="198" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="10">DOUT</text>
+
+          <rect x="536" y="96" width="186" height="110" fill="#13171b" stroke="#252c35" stroke-width="1.5" rx="2" />
+          <text x="629" y="122" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="12" text-anchor="middle">ESP32-C3</text>
+          <text x="629" y="142" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">GPIO for HX711 + battery ADC</text>
+
+          <line x1="462" y1="176" x2="536" y2="176" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="4 3" marker-end="url(#arr2)" />
+          <line x1="462" y1="198" x2="536" y2="198" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="4 3" marker-end="url(#arr2)" />
+          <text x="497" y="170" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="9" text-anchor="middle">PD_SCK</text>
+          <text x="497" y="192" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="9" text-anchor="middle">DOUT</text>
+
+          <line x1="462" y1="154" x2="530" y2="154" stroke="#22c55e" stroke-width="2.5" />
+          <text x="496" y="148" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="9" text-anchor="middle">3V0</text>
+
+          <rect x="710" y="54" width="96" height="40" fill="#13171b" stroke="#252c35" stroke-width="1.2" rx="2" />
+          <text x="758" y="78" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="9" text-anchor="middle">Battery Divider</text>
+          <line x1="724" y1="94" x2="724" y2="122" stroke="#e8a020" stroke-width="2" />
+          <line x1="792" y1="94" x2="792" y2="122" stroke="#3b82f6" stroke-width="2" stroke-dasharray="4 3" />
+          <text x="724" y="131" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="8" text-anchor="middle">VBAT</text>
+          <text x="792" y="131" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="8" text-anchor="middle">ADC</text>
+        </svg>
+        <div class="diagram-caption">Fig 3. Load-cell ADC detail, including the battery-divider side channel into the MCU.</div>
+      </div>
+    </section>
+
+    <section id="bom">
+      <div class="section-header">
+        <div class="section-number">04</div>
+        <h2>Bill of Materials</h2>
+      </div>
+      <table class="bom-table">
+        <thead>
+          <tr>
+            <th>Ref</th>
+            <th>Description</th>
+            <th>Part Number</th>
+            <th>Qty</th>
+            <th>Est. Unit $</th>
+            <th>Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="bom-group-header"><td colspan="6">Core Compute + RF</td></tr>
+          <tr>
+            <td>U1</td>
+            <td>Wi-Fi / BLE module with external antenna connector</td>
+            <td>ESP32-C3-MINI-1U-H4 <span class="subline">LCSC: C3013922</span></td>
+            <td>1</td>
+            <td>2.56</td>
+            <td>LCSC / JLCPCB</td>
+          </tr>
+
+          <tr class="bom-group-header"><td colspan="6">Weight Front End</td></tr>
+          <tr>
+            <td>U2</td>
+            <td>24-bit weigh-scale ADC</td>
+            <td>HX711 <span class="subline">LCSC: C43656</span></td>
+            <td>1</td>
+            <td>0.59</td>
+            <td>LCSC / JLCPCB</td>
+          </tr>
+          <tr>
+            <td>J3</td>
+            <td>4-pin load-cell connector</td>
+            <td>BM04B-SRSS-TB(LF)(SN) <span class="subline">Assumed compact SMT connector</span></td>
+            <td>1</td>
+            <td>0.20</td>
+            <td>JST / Distributor</td>
+          </tr>
+
+          <tr class="bom-group-header"><td colspan="6">Battery + Charging</td></tr>
+          <tr>
+            <td>J1</td>
+            <td>USB-C receptacle, 16-pin, USB 2.0, 3 A</td>
+            <td>TYPE-C-31-M-12 <span class="subline">LCSC: C165948</span></td>
+            <td>1</td>
+            <td>0.40</td>
+            <td>LCSC / JLCPCB</td>
+          </tr>
+          <tr>
+            <td>U3</td>
+            <td>1-cell Li-ion charger, 4.2 V regulation</td>
+            <td>MCP73831T-2ACI/OT <span class="subline">LCSC: C424093</span></td>
+            <td>1</td>
+            <td>0.60</td>
+            <td>LCSC / JLCPCB</td>
+          </tr>
+          <tr>
+            <td>J2</td>
+            <td>2-pin LiPo battery connector</td>
+            <td>S2B-PH-SM4-TB(LF)(SN) <span class="subline">Hand-solder if assembly availability is poor</span></td>
+            <td>1</td>
+            <td>0.16</td>
+            <td>JST / Distributor</td>
+          </tr>
+
+          <tr class="bom-group-header"><td colspan="6">Regulation + Support</td></tr>
+          <tr>
+            <td>U4</td>
+            <td>3.0 V / 500 mA low-IQ LDO</td>
+            <td>TLV75530PDBVR <span class="subline">LCSC: C507268</span></td>
+            <td>1</td>
+            <td>0.17</td>
+            <td>LCSC / JLCPCB</td>
+          </tr>
+          <tr>
+            <td>D1</td>
+            <td>USB ESD protection array</td>
+            <td>USBLC6-2SC6 <span class="subline">Exact source to confirm during part import</span></td>
+            <td>1</td>
+            <td>0.10</td>
+            <td>LCSC / JLCPCB</td>
+          </tr>
+          <tr>
+            <td>Q1</td>
+            <td>Optional PFET for bridge or divider gating</td>
+            <td>AO3401A <span class="subline">Use only if sleep-current budget needs it</span></td>
+            <td>1</td>
+            <td>0.03</td>
+            <td>LCSC / JLCPCB</td>
+          </tr>
+          <tr>
+            <td>R*</td>
+            <td>CC resistors, charger set resistor, boot pulls, battery divider</td>
+            <td>0402 / 0603 passives <span class="subline">JLC stocked parts</span></td>
+            <td>~12</td>
+            <td>0.01–0.03</td>
+            <td>JLCPCB PCBA</td>
+          </tr>
+          <tr>
+            <td>C*</td>
+            <td>USB, battery, LDO, module, and ADC decoupling</td>
+            <td>0402 / 0603 / 0805 MLCCs <span class="subline">JLC stocked parts</span></td>
+            <td>~10</td>
+            <td>0.01–0.04</td>
+            <td>JLCPCB PCBA</td>
+          </tr>
+          <tr class="bom-total">
+            <td colspan="4">Estimated electronics subtotal for core PCBA</td>
+            <td>~4.80</td>
+            <td>Excludes PCB fab, assembly fees, battery, load cell, and external antenna</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout info">
+        <div class="callout-title">Sourcing Note</div>
+        The USB connector, ESD diode, and harness connectors should be re-checked against the final enclosure and assembly strategy before release. Core IC recommendations are already anchored to live LCSC/JLC-friendly parts.
+      </div>
+    </section>
+
+    <section id="assembly">
+      <div class="section-header">
+        <div class="section-number">05</div>
+        <h2>Wiring &amp; Assembly</h2>
+      </div>
+
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 700 440" width="100%" max-width="700" xmlns="http://www.w3.org/2000/svg">
+          <rect x="70" y="48" width="560" height="316" fill="none" stroke="#2e3740" stroke-width="1.5" rx="3" />
+          <rect x="110" y="82" width="112" height="52" fill="#13171b" stroke="#252c35" stroke-width="1.2" rx="2" />
+          <text x="166" y="112" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="11" text-anchor="middle">USB-C / Charge Edge</text>
+
+          <rect x="250" y="70" width="178" height="96" fill="#1a1f25" stroke="#e8a020" stroke-width="1.3" rx="2" />
+          <text x="339" y="100" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="12" text-anchor="middle">Main PCB</text>
+          <text x="339" y="118" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="9" text-anchor="middle">MCU + charger + ADC + LDO</text>
+
+          <rect x="470" y="82" width="110" height="50" fill="#13171b" stroke="#252c35" stroke-width="1.2" rx="2" />
+          <text x="525" y="111" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="11" text-anchor="middle">Antenna Zone</text>
+
+          <rect x="122" y="250" width="118" height="56" fill="#13171b" stroke="#252c35" stroke-width="1.2" rx="2" />
+          <text x="181" y="282" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="11" text-anchor="middle">LiPo Pack</text>
+
+          <rect x="452" y="250" width="136" height="56" fill="#13171b" stroke="#252c35" stroke-width="1.2" rx="2" />
+          <text x="520" y="282" fill="#d4dbe4" font-family="'IBM Plex Mono', monospace" font-size="11" text-anchor="middle">Load Cell Harness</text>
+
+          <path d="M240 278 C280 278, 280 210, 300 164" fill="none" stroke="#e8a020" stroke-width="3" />
+          <path d="M452 278 C410 278, 408 220, 394 164" fill="none" stroke="#3b82f6" stroke-width="3" stroke-dasharray="4 3" />
+          <path d="M222 108 C236 108, 248 108, 250 108" fill="none" stroke="#22c55e" stroke-width="3" />
+
+          <text x="256" y="256" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="9">Battery leads</text>
+          <text x="405" y="246" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="9">Bridge signals</text>
+          <text x="232" y="100" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="9">VBUS / USB</text>
+
+          <rect x="202" y="376" width="304" height="34" fill="none" stroke="#252c35" stroke-width="1" rx="2" />
+          <line x1="220" y1="393" x2="254" y2="393" stroke="#e8a020" stroke-width="3" />
+          <text x="262" y="397" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="9">battery / raw power</text>
+          <line x1="362" y1="393" x2="396" y2="393" stroke="#3b82f6" stroke-width="3" stroke-dasharray="4 3" />
+          <text x="404" y="397" fill="#6b7a8a" font-family="'IBM Plex Mono', monospace" font-size="9">signal / bridge</text>
+        </svg>
+        <div class="diagram-caption">Fig 4. Enclosure-level wiring concept showing the main PCB, LiPo pack, and load-cell harness.</div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div><div class="step-title">Receive and inspect PCBs</div><p>Confirm board revision, USB-C connector footprint quality, module-pad finish, and antenna-edge keepout cleanliness before assembly.</p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div><div class="step-title">Populate core power path</div><p>Verify `MCP73831`, `TLV75530`, CC resistors, bulk caps, and battery connector orientation before the ESP32 module is powered for the first time.</p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div><div class="step-title">Mount MCU and analog front end</div><p>Assemble `ESP32-C3-MINI-1U`, `HX711`, and the related passives. Keep the analog zone clean and inspect for solder bridges around the HX711 inputs.</p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">04</div>
+          <div><div class="step-title">Install harness connectors</div><p>Attach the LiPo connector, load-cell connector, and any optional external-antenna pigtail or mating connector specified by the mechanical design.</p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">05</div>
+          <div><div class="step-title">Factory program and calibrate</div><p>Use USB Serial/JTAG through USB-C first; fall back to the factory pads if needed. Flash test firmware, read bridge counts, and apply a known-mass calibration.</p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">06</div>
+          <div><div class="step-title">Function test and sleep-current check</div><p>Verify charging, battery ADC, radio bring-up, load-cell stability, and the final deep-sleep current target with the bridge and divider disabled.</p></div>
+        </div>
+      </div>
+
+      <div class="callout warning">
+        <div class="callout-title">Serviceability</div>
+        Keep the factory pads accessible even after enclosure integration. This board should be recoverable without desoldering the battery or opening the RF path.
+      </div>
+    </section>
+
+    <section class="production" id="production">
+      <div class="section-header">
+        <div class="section-number">06</div>
+        <h2>Production Ordering Guide</h2>
+      </div>
+
+      <div class="order-grid">
+        <div class="order-box">
+          <div class="order-title">JLCPCB PCB + PCBA</div>
+          <div class="order-params">
+            <div>Dimensions</div><div>45 mm × 35 mm (assumed)</div>
+            <div>Layers</div><div>2</div>
+            <div>Finish</div><div>ENIG preferred</div>
+            <div>PCBA type</div><div>Top-side assembly</div>
+            <div>Qty</div><div>5–10 proto / 100+ pilot</div>
+            <div>Estimated cost</div><div>Low single-digit PCB + assembly overhead, parts separate</div>
+          </div>
+        </div>
+
+        <div class="order-box">
+          <div class="order-title">Battery / Harness</div>
+          <div class="order-params">
+            <div>Battery</div><div>1S LiPo, 3000 mAh</div>
+            <div>Load cell</div><div>4-wire bridge sensor</div>
+            <div>Connector strategy</div><div>Pre-crimped harness or manual crimp</div>
+            <div>Assembly</div><div>Likely hand-install in proto stage</div>
+            <div>Qty</div><div>Match PCB quantity + spares</div>
+            <div>Estimated cost</div><div>External to PCBA quote</div>
+          </div>
+        </div>
+
+        <div class="order-box">
+          <div class="order-title">Factory Fixture</div>
+          <div class="order-params">
+            <div>Interface</div><div>Pogo fixture on factory pads</div>
+            <div>Primary flash path</div><div>USB-C + USB Serial/JTAG</div>
+            <div>Fallback</div><div>UART + EN + BOOT pads</div>
+            <div>Need</div><div>Current measurement + calibration mass</div>
+            <div>Qty</div><div>1–2 fixtures initially</div>
+            <div>Estimated cost</div><div>Project-specific fixture build</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout success">
+        <div class="callout-title">Files Needed To Place Orders</div>
+        Gerbers, drill files, BOM CSV, pick-and-place CSV, assembly drawings, and a bring-up note package covering USB flashing, battery check, and load-cell calibration.
+      </div>
+
+      <h3>Scale-Up Notes</h3>
+      <ul>
+        <li>If the product must charge and run gracefully with a deeply depleted or missing battery, move to a real power-path charger in the next revision.</li>
+        <li>If RF performance becomes enclosure-limited, reserve a future spin for antenna matching and feed optimization with the final mechanical stack.</li>
+        <li>If sleep-current margin is not met, add explicit bridge-power gating instead of changing the whole analog architecture.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    Document ID: E3S-A0-DESIGN-BRIEF | Revision A0 | Status: recommended architecture defined, pending circuit implementation and validation
+  </footer>
+</body>
+</html>
