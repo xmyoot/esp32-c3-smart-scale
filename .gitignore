@@ -38,3 +38,10 @@ yarn-error.log*
 
 # tscircuit cache
 .tscircuit/
+
+# KiCad local state
+*.kicad_prl
+*-backups/
+fp-info-cache
+_autosave-*
+*.lck
